@@ -17,7 +17,6 @@ import com.cliqz.browser.app.BrowserApp
 import com.cliqz.browser.main.MainActivity
 import com.cliqz.browser.main.Messages
 import com.cliqz.browser.purchases.Products.PRODUCTS_LIST
-import com.cliqz.browser.purchases.Products.UPGRADE_MAP
 import com.cliqz.browser.purchases.productlist.OnBuyClickListener
 import com.cliqz.browser.purchases.productlist.ProductListAdapter
 import com.cliqz.browser.purchases.productlist.ProductRowData
@@ -90,8 +89,7 @@ class PurchaseFragment : DialogFragment(), OnBuyClickListener {
                 val productSet = (entitlement?.offerings ?: emptyMap())
                         .map { (_, off) -> off.activeProductIdentifier to off.skuDetails }
                         .toMap()
-                val productList = mutableListOf<ProductRowData>()
-                PRODUCTS_LIST.mapNotNullTo(productList) { sku ->
+                val productList = PRODUCTS_LIST.mapNotNull { sku ->
                     productSet[sku]?.let { detail ->
                         ProductRowData(
                                 detail.sku,
@@ -110,12 +108,6 @@ class PurchaseFragment : DialogFragment(), OnBuyClickListener {
                     dismiss()
                 } else {
                     mAdapter.setSubscription(subscription)
-                    productList.removeAll {product ->
-                        // Do not remove the current subscribed product and
-                        // remove product which is a downgrade.
-                        product.sku != subscription?.sku &&
-                                !(UPGRADE_MAP[subscription?.sku]?.contains(product.sku) ?: true)
-                    }
                     mAdapter.updateProductList(productList)
                 }
                 setLoading(false)
